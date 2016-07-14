@@ -1,6 +1,7 @@
 app_tree = {level=1, root=create_node('root', 'root', 1,{
 	create_node('2a_botao_Satao','img',1,{
 		create_node('6_botao_Perfil','img',1,{
+			create_node('Lalala','txt'),
 			create_node('Lorem ipsum lorem ipsum lorem ipsum','txt'),
 			create_node('Lorem ipsum lorem ipsum lorem ipsum','txt')}),
 		create_node('7_botao_Galeria','img',1,{

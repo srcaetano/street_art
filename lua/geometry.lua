@@ -1,5 +1,6 @@
 dofile("text.lua")
-dofile("Interstate_text.lua")
+dofile("Stencil_std_text.lua") 
+--dofile("Interstate_text.lua")
 
 local canvas_background = img_folder .. 'canvas_full_background' .. img_ext
 
