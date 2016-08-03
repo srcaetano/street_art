@@ -126,6 +126,19 @@ function hyphenatedText(text, font, width)
 end
 
 
+function nodeDimensions(cur_level_data)
+	if cur_level_data.img_crumb ~= 'no_crumb' then
+		j = 1
+		n = img_sizes[j].name
+		while n~=(cur_level_data.img_crumb) do
+			j = j+1
+			n = img_sizes[j].name
+		end
+		cur_level_data.crumbW = img_sizes[j].W
+		cur_level_data.crumbH = img_sizes[j].H
+	end
+end
+
 function branchesDimensions(cur_level_data)
 	local cur_branch = {}
 	for i = 1,#cur_level_data.branches do

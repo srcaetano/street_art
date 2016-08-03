@@ -17,18 +17,34 @@ is_moving = false
 
 fullW = 1280
 fullH = 720
-lua_xs = 250
-lua_ys = 140
-luaW = fullW-lua_xs*2
-luaH = fullH-lua_ys*4/3
-t_ms = 30
+
+crumb_xs = fullW*10/100
+crumb_ys = fullH*20/100
+crumbW   = 220
+crumbH   = 576
+
+info_xs = fullW*90/100-crumbW
+info_ys = fullH*85/100
+infoW   = crumbW
+infoH   = crumbH
+
+lua_xs = crumb_xs+crumbW --330
+lua_ys = crumb_ys
+luaW   = info_xs-lua_xs
+luaH   = crumbH
+
+t_ms    = 20
 
 local background_img = canvas:new(img_folder .. '4_Fundo_1280x720' .. img_ext)
 
-function clear_canvas(W, H)
-	canvas:attrClip(0, 0, fullW, fullH)
+function clear_canvas(x, y, W, H)
+	canvas:attrClip(x,y,W,H)
 	canvas:attrColor(0,0,0,0)
-	canvas:clear(0,0,W,H)
+	canvas:clear(x,y,W,H)
+end
+
+function reset_canvas(x, y, W, H)
+	clear_canvas(x,y,W,H)
 	canvas:compose(0, 0, background_img) --canvas:new(img_folder .. '4_Fundo_1280x720' .. img_ext))
 	canvas:attrClip(lua_xs, lua_ys, luaW, luaH)
 end
@@ -61,22 +77,35 @@ function draw_canvas(cur_level_data)
 		cur_y = cur_y+cur_level_data.branches[i].H+cur_level_data.y_gap
 	end
 	canvas:attrClip(0, 0, fullW, fullH)
-	lua_xs = lua_xs + luaW + 1
+	--lua_xs = lua_xs + luaW + 1
 	--canvas:attrColor(0,0,0,0)
 	--canvas:drawRect('fill',lua_xs,cur_level_data.H-140+lua_ys,200,200)
 	if cur_level_data.focus>1 then
-		canvas:compose(49+lua_xs, cur_level_data.H-140+lua_ys,  cur_level_data.arrow_up)
+		canvas:compose(49+info_xs, info_ys-140,  cur_level_data.arrow_up)
 	end
 	if cur_level_data.focus<(#cur_level_data.branches) then
-		canvas:compose(49+lua_xs, cur_level_data.H-56+lua_ys, cur_level_data.arrow_down)
+		canvas:compose(49+info_xs, info_ys-56, cur_level_data.arrow_down)
 	end
 	if cur_level_data.level>1 then
-		canvas:compose(1+lua_xs, cur_level_data.H-90+lua_ys,  cur_level_data.arrow_left)
+		canvas:compose(1+info_xs, info_ys-90,  cur_level_data.arrow_left)
 	end
 	if cur_level_data.has_branches then
-		canvas:compose(81+lua_xs, cur_level_data.H-90+lua_ys, cur_level_data.arrow_right)
+		canvas:compose(81+info_xs, info_ys-90, cur_level_data.arrow_right)
 	end
-	lua_xs = lua_xs - luaW - 1
+	--lua_xs = lua_xs - luaW - 1
+	canvas:attrClip(lua_xs, lua_ys, luaW, luaH)
+	canvas:flush()
+end
+
+function draw_breadcrumb(cur_level_data)
+	if cur_level_data.img_crumb == 'no_crumb' then
+		reset_canvas(0,0,fullW,fullH)
+		return
+	end
+	canvas:attrClip(0, 0, fullW, fullH)
+	canvas:compose(crumb_xs+(crumbW-cur_level_data.crumbW)/2,
+					crumb_ys+(crumbH-cur_level_data.crumbH)/2,
+					cur_level_data.crumb_canvas)
 	canvas:attrClip(lua_xs, lua_ys, luaW, luaH)
 	canvas:flush()
 end
@@ -126,8 +155,9 @@ function animate_canvas_vertically()
 	if steps>0 then
 		steps = steps - 1
 		level_data.y = level_data.y+dy
-		clear_canvas(fullW, fullH)
+		reset_canvas(lua_xs, lua_ys, fullW, fullH)
 		--clear_canvas(level_data.W, level_data.H)
+		--draw_breadcrumb(level_data)
 		draw_canvas(level_data)
 		event.timer(t_ms,animate_canvas_vertically)
 	else
@@ -139,8 +169,9 @@ function animate_canvas_horizontally()
 	if steps>0 then
 		steps = steps - 1
 		level_data.x = level_data.x+dx
-		clear_canvas(fullW, fullH)
+		reset_canvas(lua_xs, lua_ys, fullW, fullH)
 		--clear_canvas(level_data.W, level_data.H)
+		--draw_breadcrumb(level_data)
 		draw_canvas(level_data)
 		event.timer(t_ms,animate_canvas_horizontally)
 	else
@@ -154,8 +185,9 @@ function animate_canvas_horizontally()
 		end
 		level_data = {}
 		level_data = read_level_data(app_tree)
-		clear_canvas(fullW, fullH)
+		reset_canvas(lua_xs, lua_ys, fullW, fullH)
 		--clear_canvas(level_data.W, level_data.H)
+		draw_breadcrumb(level_data)
 		draw_canvas(level_data)
 	end
 end
@@ -216,11 +248,12 @@ function read_level_data(tree_data)
 	cur_level_data.box_font   = {'Tiresias',22,'bold'}
 	cur_level_data.border = 5
 	cur_level_data.branches = read_branches(tree_node, cur_level_data.border, cur_level_data.box_font)      --cur_level_data.img_nsel, cur_level_data.img_ysel, cur_level_data.text = read_branches(tree_node)
+	
 	cur_level_data.branch_num = #(cur_level_data.branches)
 	if cur_level_data.branch_num > 0 and cur_level_data.branches[1].media_type=='url' then
 		if internet_connection_available then
 			local cur_url = cur_level_data.branches[1].url
-			clear_canvas(fullW,fullH)
+			reset_canvas(lua_xs, lua_ys, fullW,fullH)
 			canvas:compose(math.floor(lua_xs+(luaW-158)/2),math.floor(lua_ys+(luaH-123)/2),
 				canvas:new(img_folder .. 'BTN_DOWNLOADING_DATA' .. img_ext))
 			canvas:flush()
@@ -235,6 +268,11 @@ function read_level_data(tree_data)
 	end
 	cur_level_data.level = tree_data.level
 	cur_level_data.focus = tree_node.focus
+	
+	cur_level_data.img_crumb = tree_node.img_crumb
+	cur_level_data.crumb_canvas = tree_node.crumb_canvas
+	nodeDimensions(cur_level_data)
+	
 	branchesDimensions(cur_level_data)
 	for cur_br = 1,cur_level_data.branch_num do
 		local cur_branch = cur_level_data.branches[cur_br]
@@ -263,7 +301,7 @@ function read_level_data(tree_data)
 	local min_gap = 5 --50
 	for j=1,#cur_level_data.branches do
 		cur_level_data.x_gap = math.max(cur_level_data.x_gap,cur_level_data.branches[j].W)
-		if cur_level_data.y_gap > cur_level_data.branches[j].H + min_gap then-- j<4 then
+		if cur_level_data.y_gap > cur_level_data.branches[j].H + min_gap then -- j<4 then
 			cur_level_data.y_gap = cur_level_data.y_gap - cur_level_data.branches[j].H
 			num_btns = num_btns + 1
 		end
@@ -317,7 +355,7 @@ function Start_App()
 end
 
 function Start_Menu()
-	clear_canvas(fullW, fullH)
+	reset_canvas(0, 0, fullW, fullH)
 	--local img_names_menu = {'APP_LOGO_small', 'BTN_STOP'}
 	--local img_xs_menu = {278,269}
 	--local img_ys_menu = {72,576}
@@ -327,6 +365,7 @@ function Start_Menu()
 	--end
 	canvas:attrClip(lua_xs, lua_ys, luaW, luaH)
 	level_data = read_level_data(app_tree)
+	draw_breadcrumb(level_data)
 	draw_canvas(level_data)
 	run_menu = true
 end
@@ -337,7 +376,7 @@ function menu_lua_event_handler(evt)
 			--if is_downloading==true then return end
 			if evt.key == 'RED' then
 				canvas:attrClip(0, 0, fullW, fullH)
-				clear_canvas(fullW, fullH)
+				clear_canvas(0, 0, fullW, fullH)
 				Start_App()
 				--event.post {class  = 'ncl', type = 'presentation', action = 'stop'}
 			else

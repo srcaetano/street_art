@@ -14,11 +14,11 @@ node is a table containing 2 or 4 fields:
 'focus' and 'branches' are optional. If one of these variables is not 
 given, the current node will not have branches.
 ]]
-function create_node(media, media_type, focus, branches)
+function create_node(media, media_type, img_crumb, focus, branches)
 	if not(focus) or not(branches) then
-		return {media=media, media_type=media_type}
+		return {media=media, media_type=media_type, img_crumb=img_crumb}
 	else
-		return {media=media, media_type=media_type, focus=focus, branches=branches}
+		return {media=media, media_type=media_type, img_crumb=img_crumb, focus=focus, branches=branches}
 	end
 end
 
@@ -29,6 +29,9 @@ function read_node(tree_menu)
 		tree_node = tree_node.branches[tree_node.focus]
 		i=i-1
 	end
+	if tree_node.img_crumb ~= 'no_crumb' then
+		tree_node.crumb_canvas = canvas:new(img_folder .. tree_node.img_crumb .. img_ext)
+	end
 	return tree_node
 end
 
@@ -38,6 +41,11 @@ function read_branches(tree_node, border, box_font)
 		branches[i] = {}
 		branches[i].media_type = tree_node.branches[i].media_type
 		cur_media = tree_node.branches[i].media
+		--if tree_node.branches[i].img_crumb ~= 'no_crumb' then
+		--	--print('read_branches ' .. tree_node.branches[i].img_crumb)
+		--	branches[i].img_crumb = tree_node.branches[i].img_crumb
+		--	branches[i].crumb_canvas = canvas:new(img_folder .. tree_node.branches[i].img_crumb .. img_ext)
+		--end
 		if branches[i].media_type == 'img' then
 			branches[i].img_ysel = canvas:new(img_folder .. cur_media .. '_FOCUS' .. img_ext)
 			branches[i].img_nsel = canvas:new(img_folder .. cur_media .. img_ext)
