@@ -41,10 +41,10 @@ img_sizes = {
 			{name="6_botao_Perfil",W=253,H=108},
 			{name="7_botao_Galeria",W=253,H=107},
 			{name="8_botao_Links",W=253,H=107},
-			{name="9_Foto_Satao",W=206,H=573},
-			{name="10_Foto_Toys",W=206,H=565},
-			{name="11_Foto_Siren",W=206,H=565},
-			{name="12_Foto_Omik",W=206,H=565},
+			{name="9_Foto_Satao",W=165,H=458},
+			{name="10_Foto_Toys",W=165,H=452},
+			{name="11_Foto_Siren",W=165,H=452},
+			{name="12_Foto_Omik",W=165,H=452},
 			}
 
 
