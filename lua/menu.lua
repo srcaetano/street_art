@@ -24,7 +24,7 @@ crumbW   = 220
 crumbH   = 576
 
 info_xs = fullW*90/100-crumbW
-info_ys = fullH*85/100
+info_ys = fullH*75/100
 infoW   = crumbW
 infoH   = crumbH
 
@@ -80,17 +80,23 @@ function draw_canvas(cur_level_data)
 	--lua_xs = lua_xs + luaW + 1
 	--canvas:attrColor(0,0,0,0)
 	--canvas:drawRect('fill',lua_xs,cur_level_data.H-140+lua_ys,200,200)
+	
+	canvas:compose(info_xs, info_ys,  cur_level_data.arrow_back)
 	if cur_level_data.focus>1 then
-		canvas:compose(49+info_xs, info_ys-140,  cur_level_data.arrow_up)
+		--canvas:compose(49+info_xs, info_ys-140,  cur_level_data.arrow_up)
+		canvas:compose(info_xs, info_ys, cur_level_data.arrow_up)
 	end
 	if cur_level_data.focus<(#cur_level_data.branches) then
-		canvas:compose(49+info_xs, info_ys-56, cur_level_data.arrow_down)
+		--canvas:compose(49+info_xs, info_ys-56, cur_level_data.arrow_down)
+		canvas:compose(info_xs, info_ys, cur_level_data.arrow_down)
 	end
 	if cur_level_data.level>1 then
-		canvas:compose(1+info_xs, info_ys-90,  cur_level_data.arrow_left)
+		--canvas:compose(1+info_xs, info_ys-90,  cur_level_data.arrow_left)
+		canvas:compose(info_xs, info_ys, cur_level_data.arrow_left)
 	end
 	if cur_level_data.has_branches then
-		canvas:compose(81+info_xs, info_ys-90, cur_level_data.arrow_right)
+		--canvas:compose(81+info_xs, info_ys-90, cur_level_data.arrow_right)
+		canvas:compose(info_xs, info_ys, cur_level_data.arrow_right)
 	end
 	--lua_xs = lua_xs - luaW - 1
 	canvas:attrClip(lua_xs, lua_ys, luaW, luaH)
@@ -244,6 +250,7 @@ function read_level_data(tree_data)
 	cur_level_data.arrow_up    = canvas:new(img_folder .. 'ARROW_UP' .. img_ext)
 	cur_level_data.arrow_left  = canvas:new(img_folder .. 'ARROW_LEFT' .. img_ext)
 	cur_level_data.arrow_right = canvas:new(img_folder .. 'ARROW_RIGHT' .. img_ext)
+	cur_level_data.arrow_back  = canvas:new(img_folder .. 'ARROW_BACK' .. img_ext)
 	
 	cur_level_data.box_font   = {'Tiresias',22,'bold'}
 	cur_level_data.border = 5
